@@ -1,0 +1,7 @@
+.idea
+Dataset
+papers
+screenshots
+computers/__pycache__
+auth_state_linear.json
+auth_state_notion.json
