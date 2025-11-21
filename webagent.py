@@ -23,7 +23,8 @@ class WebAgent:
             self,
             verbose: bool = True,
             console: Console = None,
-            context_state_path: str = None
+            context_state_path: str = None,
+            initial_url: str = None
     ):
         self._client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         with open("prompts/planner_prompt.md", "r") as fp:
@@ -47,10 +48,7 @@ class WebAgent:
             ]
         )
         # Directly jump to App page at the beginning
-        if context_state_path == "auth_state_notion.json":
-            self.playwright = PlaywrightComputer(PLAYWRIGHT_SCREEN_SIZE, context_state_path=context_state_path, initial_url="https://www.notion.so")
-        else:
-            self.playwright = PlaywrightComputer(PLAYWRIGHT_SCREEN_SIZE, context_state_path=context_state_path)
+        self.playwright = PlaywrightComputer(PLAYWRIGHT_SCREEN_SIZE, context_state_path=context_state_path, initial_url=initial_url)
         self._contents = []
         self._verbose = verbose
         if verbose and console is None:
@@ -311,11 +309,16 @@ class WebAgent:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action="store_true")
-    parser.add_argument("--app", type=str, required=True)
+    parser.add_argument("--auth_state", type=str, required=False)
+    parser.add_argument("--initial_url", type=str, required=False)
     args = parser.parse_args()
 
-    context_state_path = "auth_state_linear.json" if args.app == "Linear" else "auth_state_notion.json"
-    agent = WebAgent(verbose=args.verbose, console=Console(), context_state_path=context_state_path)
+    agent = WebAgent(
+        verbose=args.verbose,
+        console=Console(),
+        context_state_path=args.auth_state,
+        initial_url=args.initial_url
+    )
     agent.main()
 
 
